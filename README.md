@@ -1,5 +1,12 @@
 MavLink_FrSkySPort
 ==================
+
+This is a modified version wolkstein/MavLink_FrSkySPort with OpenTX2.1 and APM 3.3 / Hardware are using ATmega32U4
+https://github.com/wolkstein/MavLink_FrSkySPort
+
+Org. info.
+=============================================================================================================================
+
 This is a modified version of the mavlink to frsky s.port code found here:
 http://diydrones.com/forum/topics/amp-to-frsky-x8r-sport-converter
 
