@@ -396,7 +396,7 @@ void FrSkySPort_SendCrc() {
 void FrSkySPort_SendPackage(uint16_t id, uint32_t value) {
 
   if(MavLink_Connected) {
-    digitalWrite(led,HIGH);
+    digitalWrite(LEDPIN,HIGH);
   }
  // _FrSkySPort_C3 |= 32;      //  Transmit direction, to S.Port
   FrSkySPort_SendByte(DATA_FRAME);
@@ -412,5 +412,5 @@ void FrSkySPort_SendPackage(uint16_t id, uint32_t value) {
   _FrSkySPort_Serial.flush();
  // _FrSkySPort_C3 ^= 32;      // Transmit direction, from S.Port
 
-  digitalWrite(led,LOW);
+  digitalWrite(LEDPIN,LOW);
 }
