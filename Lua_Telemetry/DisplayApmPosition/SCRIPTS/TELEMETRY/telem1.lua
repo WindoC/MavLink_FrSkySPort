@@ -204,6 +204,9 @@
 	local function gpspanel()
 
 	  telem_t1 = getValue("T1") -- Temp1
+	  if telem_t1 == 0 then -- no data from T1 try Tmp1
+	    telem_t1 = getValue("Tmp1")
+	  end
 	  telem_lock = 0
 	  telem_sats = 0
 	  telem_lock = telem_t1%10
@@ -407,15 +410,17 @@
 	  lcd.drawText(xposCons,32,"w",SMLSIZE)
 	  lcd.drawText(xposCons,38,"h",SMLSIZE)
 	  
-	  vfas = getValue("VFAS")
-	  if vfas > 0 then
-	    number_cells = math.ceil (vfas/4.2)
-	  end
-	  if number_cells > 0 then
-	    cmin = vfas / number_cells
-	  end
-	  
 	  --lcd.drawNumber(42,47,getValue("Cmin"),DBLSIZE+PREC2)
+	  cmin=getValue("Cmin")
+	  if cmin == 0 then -- no data from Cmin, calc the cell V
+		vfas = getValue("VFAS")
+		if vfas > 0 then
+			number_cells = math.ceil (vfas/4.2)
+		end
+		if number_cells > 0 then
+			cmin = vfas / number_cells
+		end
+	  end
 	  lcd.drawNumber(42,47,cmin,DBLSIZE+PREC2)
 	  xposCons=lcd.getLastPos()
 	  lcd.drawText(xposCons,48,"V",SMLSIZE)
@@ -426,10 +431,12 @@
 	-- Calculate watthours / consumption
 	local function calcWattHs()
 	
-	  watts = getValue("VFAS") * getValue("Curr");
-
 	  localtime = localtime + (getTime() - oldlocaltime)
 	  if localtime >=10 then --100 ms
+	    watts = getValue("Watt")
+		if watts == 0 then -- if no data from watts, calc from W = V * C
+		  watts = getValue("VFAS") * getValue("Curr");
+		end
 	    --watthours = watthours + ( getValue("Watt") * (localtime/360000) )
 		watthours = watthours + ( watts * (localtime/360000) )
 		--consumption
@@ -445,6 +452,9 @@
 	local function armed_status()
 
 	  t2 = getValue("T2")
+	  if t2 == 0 then -- no data from T2 try Tmp2
+	    t2 = getValue("Tmp2") 
+	  end
 	  apmarmed = t2%0x02
 
           -- opentx2.1.3 lua support for latitude and longitude
