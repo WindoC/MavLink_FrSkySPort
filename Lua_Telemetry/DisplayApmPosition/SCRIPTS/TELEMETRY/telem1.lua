@@ -542,7 +542,7 @@
 	  --  oldlocaltimetwo = getTime()
 	  --end
 	  
-	  batteryremainps = getValue("RPM")/2
+	  batteryremainps = (getValue("RPM")%200)/2
 	  
 	  localtimetwo = localtimetwo + (getTime() - oldlocaltimetwo)
 	  if batteryremainps < 6 then
