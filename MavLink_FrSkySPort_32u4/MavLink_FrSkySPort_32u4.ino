@@ -60,7 +60,7 @@ AccZ            ( Z Axis average vibration m/s?)
 //#define debugSerial          Serial 
 #define START                     1
 #define MSG_RATE                 10 // Hertz
-#define FRSKY_PORT                9 // Teensy2 = pin 4 | Pro Mini = pin 9
+#define FRSKY_PORT               11 // Teensy2 = pin 4 | Pro Mini = pin 9
 #define MavLinkSerialBaud     57600 // Teensy2 = 58824 | Pro Mini = 57600
 #define LEDPIN                   13 // Teensy2 = pin 11 | Pro Mini = pin 13
 
@@ -88,7 +88,7 @@ AccZ            ( Z Axis average vibration m/s?)
  *
  */
 
-//#define USE_SINGLE_CELL_MONITOR
+#define USE_SINGLE_CELL_MONITOR
 //#define USE_AP_VOLTAGE_BATTERY_FROM_SINGLE_CELL_MONITOR // use this only with enabled USE_SINGLE_CELL_MONITOR
 #ifdef USE_SINGLE_CELL_MONITOR
 // configure number maximum connected analog inputs(cells) if you build an six cell network then MAXCELLS is 6 
@@ -185,7 +185,7 @@ uint16_t  hb_count;
 unsigned long MavLink_Connected_timer;
 unsigned long hb_timer;
 
-int led = LEDPIN;
+//int led = LEDPIN;
 
 mavlink_message_t msg;
 
@@ -195,23 +195,26 @@ mavlink_message_t msg;
 //cell voltage divider. this is dependent from your resitor voltage divider network
 const double LIPOCELL_1TO8[MAXCELLS] =
 {
-  238.547031716,
-  116.553595658,
-  77.750655456,
-  59.11872705
+203.73134328   ,
+101.99252802  ,
+77.15946844   ,
+57.43621655   
 };
+
+const double LIPOCELL_inputpin[MAXCELLS] = {A2, A1, A0, A9};
 
 //double individualcelldivider[MAXCELLS+1];
 //double individualcelldivider[MAXCELLS];
-uint8_t analogread_threshold = 100;         // threshold for connected zelldetection in mV
+//uint8_t analogread_threshold = 100;         // threshold for connected zelldetection in mV
+#define analogread_threshold 100
 uint8_t cells_in_use = MAXCELLS;
 //int32_t zelle[MAXCELLS+1];
 int32_t zelle[MAXCELLS];
 //double cell[MAXCELLS+1];
 //double cell[MAXCELLS];
 int32_t alllipocells = 0;
-#float lp_filter_val = 0.99; // this determines smoothness  - .0001 is max  0.99 is off (no smoothing)
-define lp_filter_val 0.99
+//float lp_filter_val = 0.99; // this determines smoothness  - .0001 is max  0.99 is off (no smoothing)
+#define lp_filter_val 0.99
 //double smoothedVal[MAXCELLS+1]; // this holds the last loop value
 double smoothedVal[MAXCELLS]; // this holds the last loop value
 
@@ -221,7 +224,6 @@ double smoothedVal[MAXCELLS]; // this holds the last loop value
 // ******************************************
 void setup()  {
 
- 
   _MavLinkSerial.begin(MavLinkSerialBaud);
   //debugSerial.begin(57600);
   delay(1000);
@@ -233,19 +235,19 @@ void setup()  {
   hb_count = 0;
 
  
-  pinMode(led,OUTPUT);
+  pinMode(LEDPIN,OUTPUT);
   pinMode(12,OUTPUT);
 
   pinMode(14,INPUT);
   
 //
-  analogReference(EXTERNAL);
+//  analogReference(EXTERNAL);
 
   /// Wolke lipo-single-cell-monitor
 #ifdef USE_SINGLE_CELL_MONITOR
   for(int i = 0; i < MAXCELLS; i++){
     zelle[i] = 0;
-    cell[i] = 0.0;
+    //cell[i] = 0.0;
     //individualcelldivider[i] = LIPOCELL_1TO8[i];
     smoothedVal[i] = 900.0;
   }
@@ -262,7 +264,8 @@ void loop()  {
 #ifdef USE_SINGLE_CELL_MONITOR
   double aread[MAXCELLS+1];
   for(int i = 0; i < MAXCELLS; i++){
-    aread[i] = analogRead(i);
+    //aread[i] = analogRead(i);
+    aread[i] = analogRead(LIPOCELL_inputpin[i]);
     if(aread[i] < analogread_threshold ){
       cells_in_use = i;
       break;
@@ -285,7 +288,7 @@ void loop()  {
     else zelle[i] =  round(aread[i]/LIPOCELL_1TO8[i]*1000 - aread[i-1]/LIPOCELL_1TO8[i-1]*1000);
   }
   //alllipocells = cell[cells_in_use -1];
-  alllipocells = aread[i]/LIPOCELL_1TO8[cells_in_use -1]*1000
+  alllipocells = round(aread[cells_in_use -1]/LIPOCELL_1TO8[cells_in_use -1]*1000);
   //debugSerial.println(", end");
 
   /*
@@ -314,7 +317,7 @@ void loop()  {
   if(millis()-hb_timer > 1500) {
     hb_timer=millis();
     if(!MavLink_Connected) {    // Start requesting data streams from MavLink
-      digitalWrite(led,HIGH);
+      digitalWrite(LEDPIN,HIGH);
       mavlink_msg_request_data_stream_pack(0xFF,0xBE,&msg,1,1,MAV_DATA_STREAM_EXTENDED_STATUS, MSG_RATE, START);
       len = mavlink_msg_to_send_buffer(buf, &msg);
       _MavLinkSerial.write(buf,len);
@@ -326,7 +329,7 @@ void loop()  {
       mavlink_msg_request_data_stream_pack(0xFF,0xBE,&msg,1,1,MAV_DATA_STREAM_RAW_SENSORS, MSG_RATE, START);
       len = mavlink_msg_to_send_buffer(buf, &msg);
       _MavLinkSerial.write(buf,len);
-      digitalWrite(led,LOW);
+      digitalWrite(LEDPIN,LOW);
     }
   }
 
@@ -371,7 +374,7 @@ void _MavLink_receive() {
           if((hb_count++) > 10) {        // If  received > 10 heartbeats from MavLink then we are connected
             MavLink_Connected=1;
             hb_count=0;
-            digitalWrite(led,HIGH);      // LED will be ON when connected to MavLink, else it will slowly blink
+            digitalWrite(LEDPIN,HIGH);      // LED will be ON when connected to MavLink, else it will slowly blink
           }
         }
         break;
@@ -456,6 +459,7 @@ break;
         {
           ap_gps_speed = 0;  
         }
+
 #ifdef DEBUG_GPS_RAW    
         /*debugSerial.print(millis());
         debugSerial.print("\tMAVLINK_MSG_ID_GPS_RAW_INT: fixtype: ");
@@ -526,6 +530,7 @@ break;
         debugSerial.println();
 #endif
       break;
+
       case MAVLINK_MSG_ID_VFR_HUD:   //  74
         ap_groundspeed = mavlink_msg_vfr_hud_get_groundspeed(&msg);      // 100 = 1m/s
         ap_heading = mavlink_msg_vfr_hud_get_heading(&msg);              // 100 = 100 deg
@@ -554,8 +559,4 @@ break;
     }
   }
 }
-
-
-
-
 
