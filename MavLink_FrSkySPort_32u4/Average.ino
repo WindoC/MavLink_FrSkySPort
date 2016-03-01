@@ -399,8 +399,8 @@ void parseStatusText(int32_t severity, String text)
 
   //ArduPlane/Attitude.cpp
   //else if(text == F("Demo Servos!"))                                                            textId = 134;
-  else if(text.startsWith(F("Throttle unsuppressed - altitude")))                                                   textId = 135;
-  else if(text.startsWith(F("Throttle unsuppressed - speed")))                                                   textId = 136;
+//  else if(text.startsWith(F("Throttle unsuppressed - altitude")))                                                   textId = 135;
+//  else if(text.startsWith(F("Throttle unsuppressed - speed")))                                                   textId = 136;
 
 
   //ArduPlane/GCS_Mavlink.cpp
@@ -422,13 +422,13 @@ void parseStatusText(int32_t severity, String text)
   else if(text == F("PreArm: invalid THR_FS_VALUE for rev throttle"))                                                            textId = 148;
 
   //ArduPlane/commands.cpp
-  else if(text.startsWith(F("gps alt:")))                                                   textId = 149;
+//  else if(text.startsWith(F("gps alt:")))                                                   textId = 149;
 
   //ArduPlane/commands_logic.cpp
-  else if(text == F("Enable fence failed (cannot autoenable"))                                                            textId = 150;
+//  else if(text == F("Enable fence failed (cannot autoenable"))                                                            textId = 150;
 //  else if(text == F("Fence enabled. (autoenabled)"))                                                            textId = 151;
-  else if(text == F("verify_conditon: Invalid or no current Condition cmd"))                                                            textId = 152;
-  else if(text == F("verify_nav: Invalid or no current Nav cmd"))                                                            textId = 153;
+//  else if(text == F("verify_conditon: Invalid or no current Condition cmd"))                                                            textId = 152;
+//  else if(text == F("verify_nav: Invalid or no current Nav cmd"))                                                            textId = 153;
 //  else if(text == F("Reached altitude"))                                                            textId = 154;
 //  else if(text == F("Reached home"))                                                            textId = 155;
 //  else if(text == F("verify_nav: LOITER orbits complete"))                                                            textId = 156;
@@ -444,8 +444,8 @@ void parseStatusText(int32_t severity, String text)
 //  else if(text.startsWith(F("Set inverted")))                                                   textId = 166;
 //  else if(text.startsWith(F("Set throttle")))                                                   textId = 167;
 //  else if(text.startsWith(F("Takeoff complete at")))                                                   textId = 168;
-  else if(text.startsWith(F("Unable to set fence enabled state to")))                                                   textId = 169;
-  else if(text.startsWith(F("Unabled to disable fence floor.")))                                                   textId = 170;
+//  else if(text.startsWith(F("Unable to set fence enabled state to")))                                                   textId = 169;
+//  else if(text.startsWith(F("Unabled to disable fence floor.")))                                                   textId = 170;
 /*
   //ArduPlane/control_modes.cpp
   else if(text == F("PX4IO Override disabled"))                                                            textId = 171;
