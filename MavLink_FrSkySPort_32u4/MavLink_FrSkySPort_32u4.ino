@@ -1,4 +1,3 @@
-
 /*
 APM2.5 Mavlink to FrSky X8R SPort interface using Teensy 3.1  http://www.pjrc.com/teensy/index.html
  based on ideas found here http://code.google.com/p/telemetry-convert/
@@ -50,8 +49,9 @@ AccZ            ( Z Axis average vibration m/s?)
 
 ******************************************************
 
- */
-
+*/
+ 
+#include <avr/pgmspace.h>
 #include <GCS_MAVLink.h>
 #include "FrSkySPort.h"
 
@@ -92,7 +92,7 @@ AccZ            ( Z Axis average vibration m/s?)
 //#define USE_AP_VOLTAGE_BATTERY_FROM_SINGLE_CELL_MONITOR // use this only with enabled USE_SINGLE_CELL_MONITOR
 #ifdef USE_SINGLE_CELL_MONITOR
 // configure number maximum connected analog inputs(cells) if you build an six cell network then MAXCELLS is 6 
-#define MAXCELLS 6
+#define MAXCELLS 4
 #endif
 /// ~ Wolke lipo-single-cell-monitor
 
@@ -193,30 +193,27 @@ mavlink_message_t msg;
 #ifdef USE_SINGLE_CELL_MONITOR
 
 //cell voltage divider. this is dependent from your resitor voltage divider network
-double LIPOCELL_1TO8[13] =
+const double LIPOCELL_1TO8[MAXCELLS] =
 {
   238.547031716,
   116.553595658,
   77.750655456,
-  59.11872705,
-  46.535677353,
-  39.62328371239,//39.628929118,
-  0.0, // diverders 7-12 not defined because my network includes only 6 voltage dividers
-  0.0,
-  0.0,
-  0.0,
-  0.0,
-  0.0
+  59.11872705
 };
 
-double individualcelldivider[MAXCELLS+1];
+//double individualcelldivider[MAXCELLS+1];
+//double individualcelldivider[MAXCELLS];
 uint8_t analogread_threshold = 100;         // threshold for connected zelldetection in mV
 uint8_t cells_in_use = MAXCELLS;
-int32_t zelle[MAXCELLS+1];
-double cell[MAXCELLS+1];
+//int32_t zelle[MAXCELLS+1];
+int32_t zelle[MAXCELLS];
+//double cell[MAXCELLS+1];
+//double cell[MAXCELLS];
 int32_t alllipocells = 0;
-float lp_filter_val = 0.99; // this determines smoothness  - .0001 is max  0.99 is off (no smoothing)
-double smoothedVal[MAXCELLS+1]; // this holds the last loop value
+#float lp_filter_val = 0.99; // this determines smoothness  - .0001 is max  0.99 is off (no smoothing)
+define lp_filter_val 0.99
+//double smoothedVal[MAXCELLS+1]; // this holds the last loop value
+double smoothedVal[MAXCELLS]; // this holds the last loop value
 
 #endif
 /// ~Wolke lipo-single-cell-monitor
@@ -249,7 +246,7 @@ void setup()  {
   for(int i = 0; i < MAXCELLS; i++){
     zelle[i] = 0;
     cell[i] = 0.0;
-    individualcelldivider[i] = LIPOCELL_1TO8[i];
+    //individualcelldivider[i] = LIPOCELL_1TO8[i];
     smoothedVal[i] = 900.0;
   }
 #endif
@@ -277,15 +274,18 @@ void loop()  {
     // USE Low Pass filter
     smoothedVal[i] = ( aread[i] * (1 - lp_filter_val)) + (smoothedVal[i]  *  lp_filter_val);
     aread[i] = round(smoothedVal[i]);
-    cell[i] = double (aread[i]/individualcelldivider[i]) * 1000;
+    //cell[i] = double (aread[i]/individualcelldivider[i]) * 1000;
     
     //debugSerial.print( cell[i]);
     //debugSerial.print( ", "); 
     
-    if( i == 0 ) zelle[i] = round(cell[i]);
-    else zelle[i] =  round(cell[i] - cell[i-1]);
+    //if( i == 0 ) zelle[i] = round(cell[i]);
+    //else zelle[i] =  round(cell[i] - cell[i-1]);
+	if( i == 0 ) zelle[i] = round(aread[i]/LIPOCELL_1TO8[i]*1000);
+    else zelle[i] =  round(aread[i]/LIPOCELL_1TO8[i]*1000 - aread[i-1]/LIPOCELL_1TO8[i-1]*1000);
   }
-  alllipocells = cell[cells_in_use -1];
+  //alllipocells = cell[cells_in_use -1];
+  alllipocells = aread[i]/LIPOCELL_1TO8[cells_in_use -1]*1000
   //debugSerial.println(", end");
 
   /*
