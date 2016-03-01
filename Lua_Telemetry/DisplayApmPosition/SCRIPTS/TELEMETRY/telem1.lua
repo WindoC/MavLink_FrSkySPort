@@ -440,7 +440,11 @@
 	    --watthours = watthours + ( getValue("Watt") * (localtime/360000) )
 		watthours = watthours + ( watts * (localtime/360000) )
 		--consumption
-		consumption = consumption + ( getValue("Curr")*1000 * (localtime/360000) )
+		if getValue("mAh") > 0 then
+		  consumption = getValue("mAh")
+		else
+		  consumption = consumption + ( getValue("Curr")*1000 * (localtime/360000) )
+		end
 	    localtime = 0
 	  end
 	  oldlocaltime = getTime()
